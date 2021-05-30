@@ -1,4 +1,4 @@
-function[A] = ToNextFrame(th,d,alpha,a)
+function[A] = ToNextFrame(d,th,a,alpha)
 % A - The Homogeneous transformation from frame i to i+1 following the
 %     DH-convention
 
