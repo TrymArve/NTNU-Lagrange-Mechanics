@@ -9,10 +9,10 @@ var = [d1 d2 d3 th1 th2 th3];
 p = -(pi/2);
 DH.par.A1 = [a 0 0 -p];
 DH.par.A2 = [b+d1 0 0 -p];
-DH.par.A3 = [c-d2 p 0 -p];
+DH.par.A3 = [c-d2 -p 0 -p];
 DH.par.A4 = [e+d3 0 0 0];
-DH.par.A5 = [0 -th1 0 p];
-DH.par.A6 = [0 th2 0 -p];
+DH.par.A5 = [0 th1 0 p];
+DH.par.A6 = [0 th2 0 -];
 DH.par.A7 = [g th3 0 0];
 %%% END
 
