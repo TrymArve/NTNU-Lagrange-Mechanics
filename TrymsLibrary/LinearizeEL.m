@@ -89,7 +89,8 @@ catch
 end
 LCG = [zeros(n) eye(n);  %Large C and G matrix
          -Gq     -C  ];
-LQ  = [zeros(n); % used LQ*Q
+[Bn,Bm] = size(sys.B);
+LQ  = [zeros(Bn); % used LQ*Q
         sys.B ];
 
 sys.LM  = simplify(LM);    % store to struct
