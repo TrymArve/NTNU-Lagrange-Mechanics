@@ -9,7 +9,7 @@ if ~isstruct(sys)
     elseif string(sys) == "config"
         config.subDiffs   = "The various partial differentiations of the Lagrangian are provided in the output-struct (dL_q, dL_dq, dL_dq_dt) You also get energies of individual masses";
         config.extractMCG = "The system model matrices on the form (M(q)*ddq + C(q,dq)*dq + G(q) = u) will be extracted from the Euler Lagrange equations and given as output";
-        config.nofuncMCG  = "The model matrices are NOT made available via a function MCG(q,dq,mass,par). (such function is made by default)";
+        config.nofuncMCG  = "The model matrices are NOT made available via a function MCG(q,dq,mass,par). (such function is made by default when extractMCG is enabled)";
         config.extractW   = "The the momentum-matrix on the form (M(q)*ddq + C(q,dq)*dq + G(q) = u) will be extracted from the Euler Lagrange equations and given as output";
         config.nofuncW    = "The momentum-matrix and RHS is NOT made available via a function W_RHS(q,dq,mass,par). (such function is made by default)";
         
@@ -119,7 +119,7 @@ N = length(pos);  %Number of masses included in system
 g_ind = find(Lagrange.par == 'g');
 if isempty(g_ind)
     syms g                           % must use g to calculate energies
-    Lagrange.par = [g Lagrange.par]; % add g to parameters
+    Lagrange.par = [g; Lagrange.par]; % add g to parameters
     par = Lagrange.par;
 else
     par = Lagrange.par;
@@ -287,8 +287,10 @@ Lagrange.help.EL       = "The Euler-Lagrange equations(Left hand side). EL = d/d
 
 %%% EXCTRACT MCG
 
-if isfield(sys, 'extractMCG') && sys.extractMCG == 1
-Lagrange.help.extractMCG = "If 1, the system model on the general form(M,C,G) is extracted from the EL-equations";
+if ~(isfield(sys, 'DisableExtension') && sys.DisableExtension == 1)
+    
+    
+    
 %%%%%%%%% extract Linearizable Model (M(q)*ddq + C(q,dq)*dq + G(q) = u)
 
 [SM,EL_M,EL_C,EL_G] = ExtractMCG(EL,GenCoords) ;
@@ -296,14 +298,13 @@ Lagrange.help.extractMCG = "If 1, the system model on the general form(M,C,G) is
 Lagrange.M = EL_M;
 Lagrange.C = EL_C;
 Lagrange.G = EL_G;
-Lagrange.SM = SM;
 Lagrange.help.M  = "Mass-matrix of the system model. --> M(q)*ddq + ... . MAKE SURE THIS IS INVERTIBLE!";
 Lagrange.help.C  = "Coriolis-matrix of the system model. -->... + C(q,dq)*dq + ... ";
 Lagrange.help.G  = "Gravity-matrix of the system model. -->... + G(q) = ...";
-Lagrange.help.SM = "The system model(left hand side). (M(q)*ddq + C(q,dq)*dq + G(q))";
 
 
 if isfield(sys, 'nofuncMCG') && sys.nofuncMCG == 1
+    Lagrange.help.nofuncMCG = "Use this to prevent a matlabfuncton from being made(one the provides the MCG matrices)";
 else
      que = [ q{:}].';
     dque = [dq{:}].';
@@ -314,41 +315,16 @@ end
 end % end "extractMCG"
 
 
+Lagrange.mass_ = [Lagrange.mass{:}].';
+Lagrange.q_    = [Lagrange.q{:}   ].';
+Lagrange.dq_   = [Lagrange.dq{:}  ].';
+Lagrange.help.mass_ = "Same as 'mass', but as a vector rather than a cell array";
+Lagrange.help.q_ = "Same as 'q', but as a vector rather than a cell array";
+Lagrange.help.dq_ = "Same as 'dq', but as a vector rather than a cell array";
 
-%%% EXTRACT W
 
-if isfield(sys, 'extractW') && sys.extractW == 1
-    Lagrange.help.extractW = "If 1, the momentum-matrix is extracted from the EL-equations";
-    %%%%%%%%% extract momentum-matrix
-    
-    dL_q = simplify(jacobian(Lag,[q{:}])).';
-    dL_q_dq = simplify(jacobian(dL_q.',[dq{:}]));
-    dL_dq = simplify(jacobian(Lag,[dq{:}])).';
-    dL_dq_dq = simplify(jacobian(dL_dq.',[dq{:}]));
-
-    % The equations have the form W*ddq = RHS + Q, with (NOTE: Q -
-    % Generalized forces, must be added when simulating)
-    W = simplify( dL_dq_dq );   % ALWAYS INVERTIBLE!
-    RHS = simplify(dL_q - dL_q_dq*[dq{:}].');
-    
-    Lagrange.W = W;
-    Lagrange.RHS = RHS;
-    Lagrange.help.W = "Momentum-matrix of the GenCoords. Used in when simulating the system. Use as follows: ddq = W\(RHS + Q). Note that W is ALWAYS invertible and symmetric!";
-    Lagrange.help.RHS = "Right Hand Side of the dynamics equation: W*ddq = RHS + Q. Used when simulating the system. RHS is calculates as: RHS = dL_q - dL_q_dq*dq";
-
-%     W2 = simplify( hessian(Ktot,[dq{:}].') );
-%     Lagrange.W2 = W2;
-%     Lagrange.help.W2 = "Alternative method of calculating W: W = d2K_dq2 --> 'Hessian(K,dq)'";
-
-if isfield(sys, 'nofuncW') && sys.extractW == 1
-else
-    que = [ q{:}].';
-    dque = [dq{:}].';
-    mass_vec = [mass{:}].';
-    matlabFunction(W,RHS,'file','W_RHS','vars',{que,dque,mass_vec,par});
-end
-    
-end % end "extractW"
+Lagrange.nq = length(Lagrange.q);
+Lagrange.help.nq = "the number of states in the system";
 
 disp('MakeLagrange --> success')
 end

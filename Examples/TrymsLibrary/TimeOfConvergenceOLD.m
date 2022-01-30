@@ -1,4 +1,4 @@
-function[t_conv, i_conv] = TimeOfConvergence(t,x,s,tol,relative)
+function[t_conv, i_conv] = TimeOfConvergenceOLD(t,x,s,tol,relative)
 % This function finds at what time and index a verctor-series x converges
 % according to your definition("s","tol")
 
@@ -23,14 +23,14 @@ else
     error('Check number of inputs!')
 end
 
-t_conv = 'N';
+t_conv = NaN;
 i_conv = NaN;
 L = length(x(1,:));
 first = 1;
     for i = L-s+1:-1:1
         
         X = x(:,i:end);
-        Mean = (sum(X')/(L-i+1))';
+        Mean = (sum(X')/length(X(1,:)))';
         Deviation = X - Mean;
         max_deviation =  max(abs(Deviation'))';
             if Relative

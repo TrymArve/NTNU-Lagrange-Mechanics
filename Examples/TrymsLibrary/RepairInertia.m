@@ -3,8 +3,8 @@ function[expr] = RepairInertia(expr,from,to)
 % When using the "MakeLagrange" function to build your euler-lagrange
 % equations, you may only have point masses. Therefore you cannot implement
 % inertia directly. To circumvent this issue, you may use three points for
-% every mass. One to represent the actual mass-point, and then two point in
-% opposite direction from the main point. Their raduis MUST BE: R = 1 in
+% every mass. One to represent the actual mass-point, and then two points in
+% opposite directions from the main point. Their raduis MUST BE: R = 1 in
 % each direction. Their average lies in the main point, and does therefore
 % not impact the translational mechanics, but introduce inertia. 
 

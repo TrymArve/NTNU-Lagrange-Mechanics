@@ -83,19 +83,19 @@ end
 LM  = blkdiag(eye(n),M); %large mass matrix
 try 
     sys.invLM = LM^1;
-    sys.help.invLM = "The inverse of the large Mass matrix(LM in linearization). This should exist!";
+    sys.help.invLM = "The inverse of the large Mass matrix(LM in linearization). This should always exist!";
 catch
     error('OOPS!!! Large Mass matrix(LM) is not invertible!')
 end
 LCG = [zeros(n) eye(n);  %Large C and G matrix
          -Gq     -C  ];
 [Bn,Bm] = size(sys.B);
-LQ  = [zeros(Bn); % used LQ*Q
+LQ  = [zeros(Bn,Bm); % used LQ*Q
         sys.B ];
 
-sys.LM  = simplify(LM);    % store to struct
+sys.LM  = simplify(LM);     % store to struct
 sys.LCG = simplify(LCG);
-sys.LQ  = LQ; %type: double (cannot simplify since its numeric)
+sys.LQ  = LQ;               % type: double (cannot simplify since its numeric)
 sys.Gq  = simplify(Gq);
 
 sys.help.LM = "Large Mass matrix - mass matrix on the left side of the linearized state space system(linearized lagrange) --> LM*[dq;ddq] = LCG*[q;dq] + LQ*Q";
@@ -123,7 +123,7 @@ sys.help.LA = "A matrix of Linearized EL system. ([dq;ddq] = LA*[q;dq] + LB*Q)";
 sys.help.LB = "B matrix of Linearized EL system. ([dq;ddq] = LA*[q;dq] + LB*Q)";
 sys.help.Ctrb = "Controllability matrix of the Linearized state space";
 sys.help.C_rank = "Rank of the controllablility matrix";
-sys.help.controllability = "Logical: Controllability of the Linearized state space model. 1 = controllable";
+sys.help.controllability = "Logical: Controllability of the Linearized state space model. 1 => controllable";
 
 
 %DISPLAY:
