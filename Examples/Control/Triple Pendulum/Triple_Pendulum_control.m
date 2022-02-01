@@ -79,9 +79,11 @@ clear("controller")
 
 tf = 20;
 
-%initial_coordinates = [0.1; 0.1; -0.01];    %[th; phi; xi]
-%initial_coordinates = [0.2; -0.1; -0.01];    %[th; phi; xi]
-initial_coordinates = [0.4; -0.2; -0.02];    %[th; phi; xi]
+initial_coordinates = [0.1; 0.1; -0.01];    %[th; phi; xi]
+initial_coordinates = [0.2; -0.1; -0.01];    %[th; phi; xi]
+initial_coordinates = [0.4; 0; -0.02];    %[th; phi; xi]
+initial_coordinates = [0.4; -0.05; -0.02];    %[th; phi; xi]
+initial_coordinates = [0.1; -0.1; -0.02];    %[th; phi; xi]
 initial_velocities  = [0 0 0]';             %[dth; dphi; dxi]
 init_state = [initial_coordinates; initial_velocities];
 
@@ -106,7 +108,8 @@ close all;
 clear("obj")
 
 nq = length(xsim(1,1:end/2));
-radius = 0.005;
+
+radius = 0.05;
 magnitudeScaleing = 0.2;
 
 %Pendulum 1:
@@ -136,7 +139,7 @@ obj.pend_3.r = radius;
 % Moment 1:
 obj.input_1.type = 'moment';
 obj.input_1.target = @(q) obj.pend_1.a(q);
-obj.input_1.magnitude = @(q) magnitudeScaleing*q(nq+1);
+obj.input_1.magnitude = @(q) 0.1*magnitudeScaleing*q(nq+1);
 obj.input_1.minr = 0.01;
 obj.input_1.color = GetColorCode('r',0.8);
 obj.input_1.color2 = GetColorCode('b',1.2);
@@ -157,8 +160,8 @@ end
 %Obs! the format ratio should be adjusted to your screen/figure. Usually
 %one of these below will be fine.
 formatRatio = 5/4;
-%formatRatio = 5/4*1.55;
-formatRatio = 5/4*0.75;
+formatRatio = 5/4*1.55;
+%formatRatio = 5/4*0.75;
 lift = L1;
 shift = 0;
 height = 2*(L1+L2+L3);
@@ -166,10 +169,11 @@ width = height*formatRatio;
 
 %config.position = [0 0 1000 2000];
 config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
-config.simspeed = 1; % slow/fast motion
+config.simspeed = 0.9; % slow/fast motion
 config.tf = tf;
 config.grid = 'on';
 config.enterToStart = 1;  %turn this off(to "0") to start immediately after running this sub-section
+config.gif = "on";
 Animate(tsim,[xsim(:,1:end/2) usim],obj,config);
 
 

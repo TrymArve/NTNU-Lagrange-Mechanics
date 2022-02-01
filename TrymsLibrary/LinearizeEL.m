@@ -1,4 +1,4 @@
-function[sys] = LinearizeEL(sys,q0,dq0,masses,parameters)
+function[sys] = LinearizeEL(sys,q0,dq0,masses,parameters,B)
 % sys  - Struct from "MakeLagrange"
 % q0   - state to linearize about(optional)
 % dq0  - state to linearize about(optional)
@@ -114,8 +114,7 @@ LCG = [zeros(n) eye(n);  %Large C and G matrix
 if ~isfield(sys,'B')
     sys.B = eye(sys.nq); %make identity matrix of same dimention as number of coordinates(q)    
 end
-[Bn,Bm] = size(sys.B);
-LQ  = [zeros(Bn,Bm); % used LQ*Q
+LQ  = [zeros(size(sys.B)); % used LQ*Q
         sys.B ];
 
 sys.LM  = simplify(LM);     % store to struct
@@ -130,12 +129,14 @@ sys.help.Gq = "Jacobian of gravity-vector G w.r.t. q, input the linearization po
 
 LA = simplify( LM\LCG );
 LB = simplify( LM\LQ );
-sys.LA = LA;
-sys.LB = LB;
-sys.help.LA = "A matrix of Linearized EL system. ([dq;ddq] = LA*[q;dq] + LB*Q)";
-sys.help.LB = "B matrix of Linearized EL system. ([dq;ddq] = LA*[q;dq] + LB*Q)";
 
-if insertpoint == 0
+if insertpoint ~= 0
+    disp('here')
+    sys.LA = double(LA);    
+    sys.LB = double(LB);
+else
+    sys.LA = LA;    
+    sys.LB = LB;
     que = [ sys.q{:}].';
     dque = [sys.dq{:}].';
     mass = [sys.mass{:}].';
@@ -143,6 +144,9 @@ if insertpoint == 0
     matlabFunction(LA,'file','LinA','vars',{que,dque,mass,par});
     matlabFunction(LB,'file','LinB','vars',{que,dque,mass,par});
 end
+
+sys.help.LA = "A matrix of Linearized EL system. ([dq;ddq] = LA*[q;dq] + LB*Q)";
+sys.help.LB = "B matrix of Linearized EL system. ([dq;ddq] = LA*[q;dq] + LB*Q)";
 
 %DISPLAY:
 disp('LA:')

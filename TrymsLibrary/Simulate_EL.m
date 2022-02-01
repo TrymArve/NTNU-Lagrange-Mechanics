@@ -6,23 +6,18 @@ values.nq = length(S.q);
 try
     mass;
 catch
-    error('SIMULATION FAILED: mass-vector is not defined.')
+    error('SIMULATION FAILED: mass-vector is not defined. Define a vector names "mass", that contains the values of the masses and inertias in your system.(in the same order as they are defined in the system struct S)')
 end
 try
     parameters;
 catch
-    error('SIMULATION FAILED: parameter-vector is not defined.')
+    error('SIMULATION FAILED: parameter-vector is not defined. Define a vector names "parameters", that contains the values of the parameters in your system.(in the same order as they are defined in the system struct S)')
 end
 try
     controller;
 catch
     disp('WARNING: "controller"-struct is not defined. Proceeding with controller.type = "off"')
     controller.type = "off";
-end
-try
-    values;
-catch
-    error('SIMULATION FAILED: "values"-struct is not defined.')
 end
 try
     tf;
@@ -52,17 +47,13 @@ fprintf('done. \n \r')
 ddqsim  = CleanSeries(ddqsim,tsim);
 usim    = CleanSeries(usim,tsim);
 
-% Plot Simulation
 
-Ref = Plot_Simulation(S,tsim,xsim,controller);
 
-if ~(controller.type == "off")
-    usim = Plot_Inputs(tsim,usim);
-end
 
 
 
 disp('Resulting variables:')
+
 text = ['tsim   - vector of timestamps.         size = nt x 1    (', num2str(size(tsim)), ')'];
 disp(text)
 text = ['xsim   - matrix of states(q and dq).   size = nt x 2*nq (', num2str(size(xsim)), ')'];
@@ -71,10 +62,18 @@ text = ['ddqsim - matrix of accelerations       size = nt x nq   (', num2str(siz
 disp(text)
 text = ['usim   - matrix of control inputs      size = nt x nu   (', num2str(size(usim)), ')'];
 disp(text)
-text = ['Ref    - matrix of reference states    size = nt x nq   (', num2str(size(Ref)), ')'];
-disp(text)
 
 
+% Plot Simulation
+if controller.type == "off"
+    Plot_Simulation(S,tsim,xsim);
+else
+    Ref = Plot_Simulation(S,tsim,xsim,controller);
+    usim = Plot_Inputs(tsim,usim);
+    text = ['Ref    - matrix of reference states    size = nt x nq   (', num2str(size(Ref)), ')'];
+    disp(text)
+
+end
 
 
 

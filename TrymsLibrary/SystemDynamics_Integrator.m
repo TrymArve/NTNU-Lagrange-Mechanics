@@ -174,7 +174,9 @@ dstate = [dq;ddq];
 
 %%%%%% save stuff to workspace:
 if isfield(controller,'B') && ~(controller.type == "off")
-u = Q(any(controller.B,2));  %don'save the forced that identically zero
+    u = Q(any(controller.B,2));  %don'save the forced that identically zero
+else
+    u = Q;
 end
 
 t_str = num2str(t);

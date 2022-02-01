@@ -1,7 +1,7 @@
 function[Ref,States_figure] = Plot_Simulation(S,tsim,xsim,controller)
 %%% PLOT SIMPULATED SYSTEMS
 
-States_figure = figure('Position', [10+200 30 900 600]);
+States_figure = figure('Position', [10+1000 30 900 600]);
 
 names = ["th","theta","lmb","lambda","w","omega","xi","eta","zeta","sigma","phi";
          "\theta","\theta","\lambda","\lambda","\omega","\omega","\xi","\eta","\zeta","\sigma","\phi"];

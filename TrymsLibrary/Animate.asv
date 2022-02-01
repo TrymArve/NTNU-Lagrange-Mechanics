@@ -68,8 +68,8 @@ movieVector(ceil(LengthOfAnimation)) = getframe;
 LengthOfAnimation = 0;
 
 if config.gif == "on"
-    fprintf('Processing Video....')
-    ProcessingTime = tic;
+    fprintf('Animating... processing....')
+    Processing
 elseif config.enterToStart == 0
     fprintf('Animating... ')
 end
@@ -330,8 +330,6 @@ if config.gif == "on"
     disp('Your Video:')
     disp(myWriter)
     disp('To keep if you are happy with the video, change the filename, such that it will not be overridden by the next video you make.')
-    ProcessingTime = toc(ProcessingTime);
-    disp(['The processing time for this video: ', num2str(ProcessingTime)])
 else
     disp('done.')
 end

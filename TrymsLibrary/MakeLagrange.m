@@ -56,6 +56,7 @@ if ~isstruct(sys)
     end
 end
 
+% NB: THERE MIGHT BE SOME OUTDATED DESCIPTIONS
 
 % Use "Lagrange.help" for info on the various variables
 
@@ -105,7 +106,7 @@ end
 
 
 
-
+fprintf('Making Lagrange Mechanics... ')
 
 %%%%%%%%% SET UP SYSTEM:
 syms t                 % make 'time' variable
@@ -326,6 +327,6 @@ Lagrange.help.dq_ = "Same as 'dq', but as a vector rather than a cell array";
 Lagrange.nq = length(Lagrange.q);
 Lagrange.help.nq = "the number of states in the system";
 
-disp('MakeLagrange --> success')
+disp('done.')
 end
 
