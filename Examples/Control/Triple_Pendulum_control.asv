@@ -79,9 +79,9 @@ clear("controller")
 
 tf = 20;
 
-initial_coordinates = [0.1; 0.1; -0.01];    %[th; phi; xi]
+%initial_coordinates = [0.1; 0.1; -0.01];    %[th; phi; xi]
 %initial_coordinates = [0.2; -0.1; -0.01];    %[th; phi; xi]
-%initial_coordinates = [0.4; 0; -0.02];    %[th; phi; xi]
+initial_coordinates = [0.4; -0.2; -0.02];    %[th; phi; xi]
 initial_velocities  = [0 0 0]';             %[dth; dphi; dxi]
 init_state = [initial_coordinates; initial_velocities];
 
@@ -136,11 +136,11 @@ obj.pend_3.r = radius;
 % Moment 1:
 obj.input_1.type = 'moment';
 obj.input_1.target = @(q) obj.pend_1.a(q);
-obj.input_1.magnitude = @(q) 0.1*magnitudeScaleing*q(nq+1);
+obj.input_1.magnitude = @(q) magnitudeScaleing*q(nq+1);
 obj.input_1.minr = 0.01;
 obj.input_1.color = GetColorCode('r',0.8);
 obj.input_1.color2 = GetColorCode('b',1.2);
-obj.input_1.thickness = @(q)  0.01 + abs(magnitudeScaleing*q(nq+1));
+obj.input_1.thickness = @(q)  0.01 + abs(magnitudeScaleing*0.1*q(nq+1));
 
 % Moment 2:
 if length(usim(1,:)) > 1
