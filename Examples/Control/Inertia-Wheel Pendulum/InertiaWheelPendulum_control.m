@@ -86,9 +86,9 @@ values.umax = 100;
 Simulate_EL
 
 %% Animate
-close all;
+close all;clear("obj");clear("config")
 % Define object to animate:
-clear("obj")
+
 
 X = xsim(:,1:end/2);
 X(:,1) = X(:,1) + pi/2;
@@ -126,8 +126,10 @@ obj.torque2.color2 = GetColorCode('b',1.1);
 
 
 % Configure animation settings:
-config.simspeed = 2;
-config.axis = [-4.6 4.6 -3 5]*1.5;
+config.simspeed = 1;
+config.frameheight = 2*L;
+config.framecenter = [0 2];
+config.aspect = 5/4; %Change this to whatever suits your pop-up figure
 config.tf = tf;
 config.enterToStart = 0;
 Animate(tsim,[X usim],obj,config);

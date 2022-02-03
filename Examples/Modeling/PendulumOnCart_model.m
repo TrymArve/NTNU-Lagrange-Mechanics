@@ -34,8 +34,10 @@ Simulate_EL
 
 %% Animate
 
-close all;
-clear("obj")
+close all;clear("obj");clear("config");
+
+box_width = 0.5;
+box_angle = pi/6;
 
 %Cart:
 obj.cart.type = 'box';
@@ -55,20 +57,14 @@ obj.pend.r = .1;
 
 % CONFIGURE ANIMATION:
 
-%Adjust formatratio to your liking
-%formatRatio = 5/4;
-%formatRatio = 5/4*1.55;
-formatRatio = 5/4*0.75;
-lift = 0;
-shift = 0;
-height = 4*L;
-width = height*formatRatio;
-config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
-
+config.position = [1 1 1920 1080];
+config.framecenter = [0 -0.2];
+config.frameheight = 3*L; 
+config.figureheight = 1080;
 config.simspeed = 1;
 config.tf = tf;
 config.grid = 'on';
-config.enterToStart = 1;
+config.enterToStart = 0;
 
 % Run animation
 Animate(tsim,xsim(:,1:end/2),obj,config);

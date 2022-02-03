@@ -56,7 +56,7 @@ mass = [m1 m2 m3]';
 
 tf = 10;
 
-initial_coordinates = [0.5; 0.5; -0.8] + pi;  %[th; phi; xi]
+initial_coordinates = [0.6; 0.3; -0.8] + pi;  %[th; phi; xi]
 initial_velocities  = [0 0 0]';  %[dth; dphi; dxi]
 init_state = [initial_coordinates; initial_velocities];
 
@@ -97,15 +97,27 @@ obj.pend_3.r = .05;
 % CONFIGURE ANIMATION:
 %Obs! the format ratio should be adjusted to your screen/figure. Usually
 %one of these below will be fine.
-%formatRatio = 5/4;
-formatRatio = 5/4*1.55;
-%formatRatio = 5/4*0.75;
-lift = 0;
-shift = 0;
-height = 3.5*(L1+L2+L3);
-width = height*formatRatio;
 
-config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
+%aspect = 5/4;
+aspect = 5/4*1.55; %(or 1920/1080)
+%aspect = 5/4*0.75;
+
+% CONFIGURE ANIMATION:
+
+% frame:
+    config.framecenter = [0 -1];
+    config.frameheight = 2*(L1+L2+L3); 
+    config.aspect = 1920/1080;  
+% figure:
+    config.figureheight = 1080;
+    config.figurelocation = [0 0];
+% General:
+    config.simspeed = 1; % slow/fast motion
+    config.tf = tf;
+    config.grid = 'on';
+    config.enterToStart = 1;  %turn this off(to "0") to start immediately after running this sub-section
+    config.video.enable = "off";
+
 config.simspeed = 1; % slow/fast motion
 config.tf = tf;
 config.grid = 'on';

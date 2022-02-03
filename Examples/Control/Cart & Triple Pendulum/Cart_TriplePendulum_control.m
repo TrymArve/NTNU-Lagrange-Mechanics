@@ -168,14 +168,8 @@ obj.input_cart.color = GetColorCode('r',0.9);
 
 
 % CONFIGURE ANIMATION:
-%formatRatio = 5/4;
-%formatRatio = 5/4*1.55;
-formatRatio = 5/4*0.75;
-lift = -.5;
-shift = 0;
-height = 5*(L1+L2);
-width = height*formatRatio;
-config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
+config.frameheight = 2*(L1+L2+L3);
+config.aspect = 5/4; %Change this to whatever suits your pop-up figure
 config.simspeed = 1;
 config.tf = tf;
 config.grid = 'on';

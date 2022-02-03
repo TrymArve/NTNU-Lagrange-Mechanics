@@ -95,122 +95,94 @@ values.umax = [ ; ; ; ];
 %% SIMULATION  
 Simulate_EL;
 
-%% Animate  (Various Object Examples Included)
-
-close all;
-clear("obj")
+%% Animate (some example objects)
+clear("obj"); clear("config"); close all;
 
 AnimationValues = [xsim(:,1:end/2) usim' Ref];
-startU   = size(xsim(1,1:end/2),2);
-startRef = startU + size(usim',2);
 
-CartHeight = 0.25;
-CartDiagonal = 0.5;
+%Box (cart):
+obj.myBox.type = 'box';
+obj.myBox.def = "CD";
+obj.myBox.B1 = @(q) [ ; ];
+obj.myBox.B2 = @(q) ;     
+obj.myBox.color = GetColorCode('p',1.1);
+obj.myBox.disable = ; 
 
-DisableReference = 1;
+%Line:
+obj.myLine.type = 'line';
+obj.myLine.a = @(q) [ ; ];
+obj.myLine.b = @(q) [ ; ]; 
+obj.myLine.color = GetColorCode('i');
+obj.myLine.disable = ;
 
-%Ref Cart:
-obj.ref_cart.type = 'box';
-obj.ref_cart.def = "CD";
-obj.ref_cart.B1 = @(q) [q(startRef+1); 0];
-obj.ref_cart.B2 = @(q) CartDiagonal;
-obj.ref_cart.color = GetColorCode('i',1.1);
-obj.ref_cart.disable = DisableReference*0;
-%Ref Pendulum 1:
-obj.ref_1.type = {'line','ball'};
-obj.ref_1.a = @(q) obj.ref_cart.B1(q)+[0;CartHeight/2];
-obj.ref_1.b = @(q) obj.ref_1.a(q) + L1*arm(q(startRef+2)+pi/2);
-obj.ref_1.color = GetColorCode('i',1.1);
-obj.ref_1.c = obj.ref_1.b;
-obj.ref_1.r = .05;
-obj.ref_1.disable = DisableReference;
-%Ref Pendulum 2:
-obj.ref_2.type = {'line','ball'};
-obj.ref_2.a = @(q) obj.ref_1.b(q);
-obj.ref_2.b = @(q) obj.ref_2.a(q) + L2*arm(q(startRef+3)+pi/2);
-obj.ref_2.color = GetColorCode('i',1.1);
-obj.ref_2.c = obj.ref_2.b;
-obj.ref_2.r = .05;
-obj.ref_2.disable = DisableReference;
-%Ref Pendulum 3:
-obj.ref_3.type = {'line','ball'};
-obj.ref_3.a = @(q) obj.ref_2.b(q);
-obj.ref_3.b = @(q) obj.ref_3.a(q) + L2*arm(q(startRef+4)+pi/2);
-obj.ref_3.color = GetColorCode('i',1.1);
-obj.ref_3.c = obj.ref_3.b;
-obj.ref_3.r = .05;
-obj.ref_3.disable = DisableReference;
+%Ball (circle):
+obj.myBall.type = 'ball';
+obj.myBall.c = [ ; ];
+obj.myBall.r = .05;   
+obj.myBall.color = GetColorCode('blue',0.8);
+obj.myBall.disable = ;
 
-%Cart:
-obj.cart.type = 'box';
-obj.cart.def = "CD";
-obj.cart.B1 = @(q) [q(1); 0];
-obj.cart.B2 = @(q) 0.5;
-obj.cart.color = GetColorCode('o',0.8);
+%Arrow (vectors):
+obj.myArrow.type = 'arrow';
+obj.myArrow.tail = @(q) [ ; ];
+obj.myArrow.head = @(q) [ ; ];
+obj.myArrow.color = GetColorCode('r',0.9);
 
-%Pendulum 1:
-obj.pend_1.type = {'line','ball'};
-obj.pend_1.a = @(q) obj.cart.B1(q) + [0;CartHeight/2];
-obj.pend_1.b = @(q) obj.pend_1.a(q) + L1*arm(q(2)+pi/2);
-obj.pend_1.color = GetColorCode('g',0.8);
-obj.pend_1.c = obj.pend_1.b;
-obj.pend_1.r = .05;
+%Point (dot):
+obj.myPoint.type = 'point';
+obj.myPoint.p = @(q) [ ; ]; 
+obj.myPoint.color = [0 0 0]; 
 
-%Pendulum 2:
-obj.pend_2.type = {'line','ball'};
-obj.pend_2.a = @(q) obj.pend_1.b(q);
-obj.pend_2.b = @(q) obj.pend_2.a(q) + L2*arm(q(3)+pi/2);
-obj.pend_2.color = GetColorCode('b',0.8);
-obj.pend_2.c = obj.pend_2.b;
-obj.pend_2.r = .05;
+%Circular Arrow (moment/torque):
+obj.myCircleArrow.type = 'moment';
+obj.myCircleArrow.target = @(q) [ ; ];  
+obj.myCircleArrow.magnitude = @(q) [ ; ];
+obj.myCircleArrow.minr = ;             
+obj.myCircleArrow.color = GetColorCode('r',0.8); 
+obj.myCircleArrow.color2 = GetColorCode('b',1.2);
+obj.myCircleArrow.thickness = @(q)  ; 
 
-%Pendulum 3:
-obj.pend_3.type = {'line','ball'};
-obj.pend_3.a = @(q) obj.pend_2.b(q);
-obj.pend_3.b = @(q) obj.pend_3.a(q) + L2*arm(q(4)+pi/2);
-obj.pend_3.color = GetColorCode('p',0.8);
-obj.pend_3.c = obj.pend_3.b;
-obj.pend_3.r = .05;
+%%%% Combined objects:
 
-%Input torque on Cart:
-obj.input_cart.type = 'arrow';
-obj.input_cart.head = @(q) obj.cart.B1(q) + (1 - 2*(q(startU + 1) > 0))*[1;0].*cos(pi/6)*CartDiagonal/2;
-obj.input_cart.tail = @(q) obj.input_cart.head(q) + [-1;0]*q(startU + 1)/10;
-obj.input_cart.color = GetColorCode('r',0.9);
-
-%Input torque on Pundulum 1:
-obj.input_pend_1.type = 'arrow';
-obj.input_pend_1.tail = @(q) obj.pend_1.b(q);
-obj.input_pend_1.head = @(q) obj.pend_1.b(q) + 0.1*q(startU+2)*arm(q(2)+pi);
-obj.input_pend_1.color = GetColorCode('r',0.9);
-
-%Input torque on Pundulum 2:
-obj.input_pend_2.type = 'arrow';
-obj.input_pend_2.tail = @(q) obj.pend_2.b(q);
-obj.input_pend_2.head = @(q) obj.pend_2.b(q) + 0.1*q(startU+3)*arm(q(3)+pi);
-obj.input_pend_2.color = GetColorCode('r',0.9);
-
-%Input torque on Pundulum 2:
-obj.input_pend_3.type = 'arrow';
-obj.input_pend_3.tail = @(q) obj.pend_3.b(q);
-obj.input_pend_3.head = @(q) obj.pend_3.b(q) + 0.1*q(startU+4)*arm(q(4)+pi);
-obj.input_pend_3.color = GetColorCode('r',0.9);
+%Pendulum:
+obj.myPendulum.type = {'line','ball'};
+obj.myPendulum.a = @(q) [ ; ];
+obj.myPendulum.b = @(q) obj.ref_1.a(q) + [ ; ];
+obj.myPendulum.c = obj.ref_1.b;
+obj.myPendulum.r = ;
+obj.myPendulum.color = GetColorCode('o');
+obj.myPendulum.disable = ;
 
 
-% CONFIGURE ANIMATION:
-formatRatio = 5/4;
-%formatRatio = 5/4*1.55;
-%formatRatio = 5/4*0.75;
-lift = -.5;
-shift = 0;
-height = 3.5*(L1+L2);
-width = height*formatRatio;
-config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
-config.simspeed = 1;
-config.tf = tf;
-config.grid = 'on';
-config.enterToStart = 1;
+
+%%%%%%%%%% CONFIGURE ANIMATION:
+
+    config.axis = [ , , , ];
+    config.framecenter = [ , ];
+    config.frameheight = ; 
+    config.aspect = 1920/1080;  
+    config.framewitdth = ;
+
+    config.position = [1 1 1920 1080]; %(this takes priority)
+    config.figureheight = 1080;  % gets same aspect as frame
+    config.figurelocation = [0 0];
+
+config.simspeed = 1; 
+config.tf = tf;     
+config.grid = 'on';  
+config.enterToStart = 1; 
+
+% Animate:
 Animate(tsim,AnimationValues,obj,config);
 
+%% Save Animation as video:
 
+config.video.enable = "on";    
+config.Video.resolution = 0.01;
+
+config.video.profile = 'MPEG-4';      
+config.video.LosslessCompression = 1; 
+config.video.CompressionRatio = 2;
+  
+Animate(tsim,[xsim(:,1:end/2) usim],obj,config);
 

@@ -29,15 +29,47 @@ if ~isfield(config,'scale')
 config.scale = 1;
 end
 
-if ~isfield(config,'position')
-    Fig = figure('visible','off');
-else
-    Fig = figure('Position', config.position,'visible','off');
+if ~isfield(config,'figurelocation')
+    config.figurelocation = [1 1];
+end    
+if ~isfield(config,'figureheight')
+    config.figureheight = 1080;
+end  
+if ~isfield(config,'aspect')
+    config.aspect = 5/4;
+end
+if ~isfield(config,'figurewidth')
+    config.figurewidth = config.aspect*config.figureheight;
 end
 
-if ~isfield(config,'axis')
-config.axis = 'equal';
+if ~isfield(config,'position')
+    config.position = [config.figurelocation config.figurewidth config.figureheight];
 end
+
+%%%%% Make figure:
+Fig = figure('Position', config.position,'visible','off');
+%%%%%
+
+if ~isfield(config,'frameheight') && ~isfield(config,'axis')
+    error('WARNING: You must define either: "config.frameheight" or "config.axis"');
+end
+
+if ~isfield(config,'framecenter')
+    config.framecenter = [0 0];
+end  
+if ~isfield(config,'framewidth')
+    config.framewidth = config.frameheight*(config.figurewidth/config.figureheight);
+end
+centerx = config.framecenter(1);
+centery = config.framecenter(2);
+width   = config.framewidth;
+height  = config.frameheight;
+
+if ~isfield(config,'axis')
+        config.axis = [-width/2 width/2 -height/2 height/2] + [centerx centerx centery centery];
+end
+
+
 if ~isfield(config,'simspeed')
     config.simspeed = 1;
 end
@@ -53,8 +85,16 @@ end
 if ~isfield(config,'ts')
     config.ts = 0;
 end
-if ~isfield(config,'gifResolution')
-    config.gifResolution = 0.01;
+%%% Video Properties:
+if isfield(config,'video')
+    if ~isfield(config.video,'resolution')
+        config.video.resolution = 0.01;
+    end
+    if ~isfield(config.video,'profile')
+        config.video.profile = 'Archival';
+    end
+else
+    config.video.enable = "off";
 end
 
 % Set Up:
@@ -63,11 +103,18 @@ SimSpeed = config.simspeed;
 tf = config.tf;
 ts = config.ts;
 qsim = qsim*config.scale;
-LengthOfAnimation = (tf-ts)/(SimSpeed*config.gifResolution) + 1; % add one for buffer(does not need to be accurate)
-movieVector(ceil(LengthOfAnimation)) = getframe;
-LengthOfAnimation = 0;
 
-if config.gif == "on"
+
+if config.video.enable == "on"
+    disp('-----------')
+    LengthOfAnimation = (tf-ts)/(SimSpeed*config.video.resolution) + 1; % add one for buffer(does not need to be accurate)
+    movieVector(ceil(LengthOfAnimation)) = getframe;
+    SecondsPerFrame = 72/556; %(uncompressed AVI)
+    SecondsPerFrame = 86.5/501;%(uncompressed AVI)
+    SecondsPerFrame = 405.7/2000;%(uncompressed AVI)
+    EstimatedProcessingTime = ceil(LengthOfAnimation*SecondsPerFrame);
+    disp(['Estimated processing time: ', num2str(EstimatedProcessingTime), 'seconds'])
+    LengthOfAnimation = 0;
     fprintf('Processing Video....')
     ProcessingTime = tic;
 elseif config.enterToStart == 0
@@ -288,7 +335,7 @@ start = 0;
         
 
     
-    if (isfield(config,'gif')) && (config.gif == "on")
+    if (isfield(config,'video')) && (config.video.enable == "on")
         %%%%%%%%%% Save as gif:
         start = 1;
         LengthOfAnimation = LengthOfAnimation + 1;
@@ -298,7 +345,7 @@ start = 0;
             fprintf('.')
         end
         movieVector(LengthOfAnimation) = getframe;
-        t_disp = t_disp + config.gifResolution + ts/SimSpeed;
+        t_disp = t_disp + config.video.resolution + ts/SimSpeed;
         %%%%%%%%%%
     elseif ~start && config.enterToStart
         figure(Fig)
@@ -318,10 +365,31 @@ start = 0;
  end
  
 
-if config.gif == "on"
+if config.video.enable == "on"
     movieVector = movieVector(1:LengthOfAnimation);
-    myWriter = VideoWriter('AnimationVideo');
-    myWriter.FrameRate = 1/config.gifResolution;
+    myWriter = VideoWriter('AnimationVideo',config.video.profile);
+    myWriter.FrameRate = 1/config.video.resolution;
+    disp('done.')
+    F = fieldnames(config.video);
+    for j = 1:length(F)
+        f = F{j};
+        try
+            switch f    
+                case 'Quality'
+                    myWriter.Quality = getfield(config.video,f);
+                case 'CompressionRatio'
+                    myWriter.CompressionRatio = getfield(config.video,f);
+                case 'FrameRate'
+                    myWriter.FrameRate = getfield(config.video,f);
+                case 'LosslessCompression'
+                        myWriter.LosslessCompression = getfield(config.video,f);
+            end
+        catch
+            disp(['WARNING: Could not set the property: "', f, '", this property may be incompatible with the video format you have selected.'])
+        end
+    end
+                
+    fprintf('writing... ')
     open(myWriter)
     writeVideo(myWriter, movieVector)
     close(myWriter)
@@ -329,9 +397,10 @@ if config.gif == "on"
     disp(' ')
     disp('Your Video:')
     disp(myWriter)
-    disp('To keep if you are happy with the video, change the filename, such that it will not be overridden by the next video you make.')
+    disp('NB! If you are satisfied with the video, change the filename, such that it will not be overridden by the next video you make.')
     ProcessingTime = toc(ProcessingTime);
-    disp(['The processing time for this video: ', num2str(ProcessingTime)])
+    disp(['The processing time for this video: ', num2str(ProcessingTime), 'seconds'])
+    disp('-----------')
 else
     disp('done.')
 end
@@ -527,10 +596,37 @@ end
 
 
 
+%% Description of video profiles:
 
-
-
-
+% 'Archival'
+% 
+% Motion JPEG 2000 file with lossless compression
+% 
+% 'Motion JPEG AVI'
+% 
+% AVI file using Motion JPEG encoding
+% 
+% 'Motion JPEG 2000'
+% 
+% Motion JPEG 2000 file
+% 
+% 'MPEG-4'
+% 
+% MPEG-4 file with H.264 encoding (systems with Windows 7 or later, or macOS 10.7 and later)
+% 
+% 'Uncompressed AVI'
+% 
+% Uncompressed AVI file with RGB24 video
+% 
+% 'Indexed AVI'
+% 
+% Uncompressed AVI file with indexed video
+% 
+% 'Grayscale AVI'
+% 
+% Uncompressed AVI file with grayscale video
+% 
+% 
 
 
 

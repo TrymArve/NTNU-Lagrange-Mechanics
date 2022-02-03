@@ -62,15 +62,9 @@ obj.input.color = GetColorCode('r');
 
 
 % CONFIGURE ANIMATION:
-formatRatio = 5/4;
-formatRatio = 5/4*1.55;
-formatRatio = 5/4*0.75;
-lift = 0;
-shift = 0;
-height = 3*L;
-width = height*formatRatio;
+config.frameheight = 2*L;
+config.aspect = 5/4*0.75; %Change this to whatever suits your pop-up figure
 
-config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
 config.simspeed = 1;
 config.tf = tf;
 config.grid = 'on';

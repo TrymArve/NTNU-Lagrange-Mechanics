@@ -81,6 +81,7 @@ values.umax = 10;
 % NOTE! By using the th-stabilization, and adding a weak PD on the cart
 % position, we were able to stabilize this unstable cart-pendulum system(upwards),
 % by only controlling the cart!!
+% (see a similar 'dominant-gain' structure in the triple pendulum example)
 
 %% SIMULATE
 Simulate_EL
@@ -89,6 +90,7 @@ Simulate_EL
 
 close all;
 clear("obj")
+clear("config")
 
 box_width = 0.4;
 box_angle = pi/6;
@@ -137,9 +139,9 @@ height = 4*L;
 width = height*formatRatio;
 config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
 
-config.simspeed = 1;
-config.tf = tf;
-config.grid = 'on';
+
+%Configure:
+config.frameheight = 4*L; 
 config.enterToStart = 1;
 
 % Run animation

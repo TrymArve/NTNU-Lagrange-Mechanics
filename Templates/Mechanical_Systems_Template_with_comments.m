@@ -61,10 +61,11 @@ init_state = [initial_coordinates; initial_velocities];
 %%% Select what controller to use:  (uncomment the one you want to use)
 % controller.type = "off";    %(no controller used)
 % controller.type = "PD";     %(PD-controller. Meant for SISO systems)
-% controller.type = "FLPD";   %(Feedback Linearization with PD. Meant for SISO)
 % controller.type = "KF";     %(The standard: u = -K*q + F*r)
-% controller.type = "FLKF";   %(Feedback Linearization with "KF")
 % controller.type = "EXT";    %(if you want to use an externally defined controller)
+
+%%% To use Feedback LInearization:
+%controller.FL = "on"
 
 controller.B =  ; % for transforming the inputsignal into the force on the system. 
 % i.e. M*ddq+C*dq+G = Q = B*u
@@ -100,7 +101,7 @@ q0  = [ ; ; ; ];
 dq0 = [ ; ; ; ];
 poles = [ , , , ];
 S = LinearizeEL(S,q0,dq0,masses,parameters);
-controller.KF.K = place(S.LA,S.LB,poles);
+controller.KF.K = place(double(S.LA),double(S.LB),poles);
 
 %% EXT:
 % Select controller source:
@@ -133,123 +134,135 @@ values.umax = [ ; ; ; ];    % Maximum allowed vaules on control signals (before 
 %Simply run this to simulate the system:
 Simulate_EL;
 
-%% Animate
+%% Animate (some example objects)
+clear("obj"); clear("config"); close all;
 
-close all;
-scale = 1;
-
-
+%Coordinates used to define positions  in the animation:
 AnimationValues = [xsim(:,1:end/2) usim' Ref];
-startU   = size(xsim(1,1:end/2),2);
-startRef = startU + size(usim',2);
-
-CartHeight = 0.25;
-CartDiagonal = 0.5;
-
-DisableReference = 1;
-
-%Ref Cart:
-obj.ref_cart.type = 'box';
-obj.ref_cart.def = "CD";
-obj.ref_cart.B1 = @(q) [q(startRef+1); 0];
-obj.ref_cart.B2 = @(q) CartDiagonal;
-obj.ref_cart.color = GetColorCode('i',1.1);
-obj.ref_cart.disable = DisableReference*0;
-%Ref Pendulum 1:
-obj.ref_1.type = {'line','ball'};
-obj.ref_1.a = @(q) obj.ref_cart.B1(q)+[0;CartHeight/2];
-obj.ref_1.b = @(q) obj.ref_1.a(q) + L1*arm(q(startRef+2)+pi/2);
-obj.ref_1.color = GetColorCode('i',1.1);
-obj.ref_1.c = obj.ref_1.b;
-obj.ref_1.r = .05;
-obj.ref_1.disable = DisableReference;
-%Ref Pendulum 2:
-obj.ref_2.type = {'line','ball'};
-obj.ref_2.a = @(q) obj.ref_1.b(q);
-obj.ref_2.b = @(q) obj.ref_2.a(q) + L2*arm(q(startRef+3)+pi/2);
-obj.ref_2.color = GetColorCode('i',1.1);
-obj.ref_2.c = obj.ref_2.b;
-obj.ref_2.r = .05;
-obj.ref_2.disable = DisableReference;
-%Ref Pendulum 3:
-obj.ref_3.type = {'line','ball'};
-obj.ref_3.a = @(q) obj.ref_2.b(q);
-obj.ref_3.b = @(q) obj.ref_3.a(q) + L2*arm(q(startRef+4)+pi/2);
-obj.ref_3.color = GetColorCode('i',1.1);
-obj.ref_3.c = obj.ref_3.b;
-obj.ref_3.r = .05;
-obj.ref_3.disable = DisableReference;
-
-%Cart:
-obj.cart.type = 'box';
-obj.cart.def = "CD";
-obj.cart.B1 = @(q) [q(1); 0];
-obj.cart.B2 = @(q) 0.5;
-obj.cart.color = GetColorCode('o',0.8);
-
-%Pendulum 1:
-obj.pend_1.type = {'line','ball'};
-obj.pend_1.a = @(q) obj.cart.B1(q) + [0;CartHeight/2];
-obj.pend_1.b = @(q) obj.pend_1.a(q) + L1*arm(q(2)+pi/2);
-obj.pend_1.color = GetColorCode('g',0.8);
-obj.pend_1.c = obj.pend_1.b;
-obj.pend_1.r = .05;
-
-%Pendulum 2:
-obj.pend_2.type = {'line','ball'};
-obj.pend_2.a = @(q) obj.pend_1.b(q);
-obj.pend_2.b = @(q) obj.pend_2.a(q) + L2*arm(q(3)+pi/2);
-obj.pend_2.color = GetColorCode('b',0.8);
-obj.pend_2.c = obj.pend_2.b;
-obj.pend_2.r = .05;
-
-%Pendulum 3:
-obj.pend_3.type = {'line','ball'};
-obj.pend_3.a = @(q) obj.pend_2.b(q);
-obj.pend_3.b = @(q) obj.pend_3.a(q) + L2*arm(q(4)+pi/2);
-obj.pend_3.color = GetColorCode('p',0.8);
-obj.pend_3.c = obj.pend_3.b;
-obj.pend_3.r = .05;
-
-%Input torque on Cart:
-obj.input_cart.type = 'arrow';
-obj.input_cart.head = @(q) obj.cart.B1(q) + (1 - 2*(q(startU + 1) > 0))*[1;0].*cos(pi/6)*CartDiagonal/2;
-obj.input_cart.tail = @(q) obj.input_cart.head(q) + [-1;0]*q(startU + 1)/10;
-obj.input_cart.color = GetColorCode('r',0.9);
-
-%Input torque on Pundulum 1:
-obj.input_pend_1.type = 'arrow';
-obj.input_pend_1.tail = @(q) obj.pend_1.b(q);
-obj.input_pend_1.head = @(q) obj.pend_1.b(q) + 0.1*q(startU+2)*arm(q(2)+pi);
-obj.input_pend_1.color = GetColorCode('r',0.9);
-
-%Input torque on Pundulum 2:
-obj.input_pend_2.type = 'arrow';
-obj.input_pend_2.tail = @(q) obj.pend_2.b(q);
-obj.input_pend_2.head = @(q) obj.pend_2.b(q) + 0.1*q(startU+3)*arm(q(3)+pi);
-obj.input_pend_2.color = GetColorCode('r',0.9);
-
-%Input torque on Pundulum 2:
-obj.input_pend_3.type = 'arrow';
-obj.input_pend_3.tail = @(q) obj.pend_3.b(q);
-obj.input_pend_3.head = @(q) obj.pend_3.b(q) + 0.1*q(startU+4)*arm(q(4)+pi);
-obj.input_pend_3.color = GetColorCode('r',0.9);
 
 
-% CONFIGURE ANIMATION:
-formatRatio = 5/4;
-formatRatio = 5/4*1.55;
-%formatRatio = 5/4*0.75;
-lift = -.5;
-shift = 0;
-height = 3.5*(L1+L2);
-width = height*formatRatio;
-config.axis = [-width/2 width/2 -height/2 height/2] + [shift shift lift lift];
-config.simspeed = 1;
-config.tf = tf;
-config.grid = 'on';
-config.enterToStart = 1;
+%%% DEFINE OBJECTS TO ANIMATE:
+%format:
+%{
+collect all objects to animate into struct "obj"
+
+An object looks like:
+obj.ObjectName.type = ' ';
+obj.ObjectName.*property_1* = @() ...
+obj.ObjectName.*property_2* = @() ...
+obj.ObjectName.*property_3* =     ...
+(not required):
+obj.ObjectName.color = [*RGB*] or GetColorCode(' blue/red/green/... ',brightness)
+obj.ObjectName.disable = 0 / 1;
+
+All object are also available as "timed_*type*", where all function handles
+take time as argument.
+%}
+
+
+%Box (cart):
+obj.myBox.type = 'box';
+obj.myBox.def = "CD";  %Define box with a center and length of diagonal(can also use: Center/Any corner(CC), Two Opposite Corners(2C) )
+obj.myBox.B1 = @(q) [ ; ]; %center
+obj.myBox.B2 = @(q) ;      %diagonal
+obj.myBox.color = GetColorCode('p',1.1); %give color to box
+obj.myBox.disable = ; % 1 - diables box(is not animated)
+
+%Line:
+obj.myLine.type = 'line';
+obj.myLine.a = @(q) [ ; ]; % start of line
+obj.myLine.b = @(q) [ ; ]; % end of line
+obj.myLine.color = GetColorCode('i'); %select a color
+obj.myLine.disable = ;
+
+%Ball (circle):
+obj.myBall.type = 'ball';
+obj.myBall.c = [ ; ]; %center
+obj.myBall.r = .05;   %radius
+obj.myBall.color = GetColorCode('blue',0.8);
+obj.myBall.disable = ;
+
+%Arrow (vectors):
+obj.myArrow.type = 'arrow';
+obj.myArrow.tail = @(q) [ ; ];
+obj.myArrow.head = @(q) [ ; ];
+obj.myArrow.color = GetColorCode('r',0.9);
+
+%Point (dot):
+obj.myPoint.type = 'point';
+obj.myPoint.p = @(q) [ ; ]; %placement
+obj.myPoint.color = [0 0 0]; % black is default (can also use GetColorCode('k/black'))
+
+%Circular Arrow (moment/torque):
+obj.myCircleArrow.type = 'moment';
+obj.myCircleArrow.target = @(q) [ ; ];    %center of circle
+obj.myCircleArrow.magnitude = @(q) [ ; ]; %radius
+obj.myCircleArrow.minr = ;                %smallest radius(radius will be equal to: minr + magnitude)
+obj.myCircleArrow.color = GetColorCode('r',0.8); %Select main color
+obj.myCircleArrow.color2 = GetColorCode('b',1.2);%Color when going in reversed direction
+obj.myCircleArrow.thickness = @(q)  ; %LineWidth
+
+%%%% Combined objects:
+
+%Pendulum:
+obj.myPendulum.type = {'line','ball'};
+obj.myPendulum.a = @(q) [ ; ];
+obj.myPendulum.b = @(q) obj.ref_1.a(q) + [ ; ];
+obj.myPendulum.c = obj.ref_1.b;
+obj.myPendulum.r = ;
+obj.myPendulum.color = GetColorCode('o');
+obj.myPendulum.disable = ;
+
+
+
+%%%%%%%%%% CONFIGURE ANIMATION:
+
+%the only necessary configuration to give is either axis or frameheight, the rest is optional.
+
+%%%%%% frame:
+% alternative 1)  (prioritized)
+    config.axis = [ , , , ];    %(when defined, this takes priority)
+% alternative 2)
+    config.framecenter = [ , ];
+    config.frameheight = ; 
+    % and either of: (
+    config.aspect = 1920/1080;  
+    config.framewitdth = ; %(prioritized when both aspect and )
+    %)
+
+%%%%%% figure:
+    %either of:
+    config.position = [1 1 1920 1080]; %(this takes priority)
+    %
+    config.figureheight = 1080;  % gets same aspect as frame
+    config.figurelocation = [0 0];
+    %
+
+%other configuration options
+config.simspeed = 1;  % set the speed of the animation relative to real time(2 - twice as fast motion, 0.5 - half the speed(slow motion))
+config.tf = tf;       % set the time to stop animation(default: animates the enitre timeseries "tsim")
+config.grid = 'on';   % same "grid" property as normal plots
+config.enterToStart = 1; % set this to make the animation wait for you to press enter before stating
+
+% Animate:
 Animate(tsim,AnimationValues,obj,config);
+
+
+
+%% Save Animation as video:
+
+config.video.enable = "on";     %make "Animation" produce a video instead of animating
+config.Video.resolution = 0.01; %Set the number of seconds that passes between frames(seconds in the animation, that is)
+
+config.video.profile = 'MPEG-4';        % some video prfile (from "VideoWriter" by matlab)
+config.video.LosslessCompression = 1;   % toggle on or off(only applies to some dataformats)
+config.video.CompressionRatio = 2;      % set compression ratio(only applies to some dataformats)
+  
+Animate(tsim,[xsim(:,1:end/2) usim],obj,config);  %Use "Animate" to save a video
+
+% The video appears in the current directory, and is called:
+% "AnimationVideo". Change this name if you want to save it, so that is is
+% not overridden by the next video you make.
 
 
 
