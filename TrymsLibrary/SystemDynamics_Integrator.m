@@ -117,7 +117,69 @@ elseif controller.type ==  "EXT"
 
 
 
-     
+
+
+
+% MPC controller:  
+elseif controller.type ==  "MPC"
+        try
+            t_prev = evalin('base', 'usim_mpc(end,1);');
+        catch
+        end
+            
+        if  (t==0) || (t-t_prev) >= controller.MPC.delta_u
+            if t ~= 0
+                % Set the initial guess equal to the previous solution:
+                controller.MPC.q_guess      = evalin("base",'Reserved_q_opt;');
+                controller.MPC.u_guess      = evalin("base",'Reserved_u_opt;');
+                controller.MPC.q_coll_guess = evalin("base",'Reserved_q_coll_opt;');
+                controller.MPC              = CLC_guess(controller.MPC);
+                
+                % Force the next optimal input to be close to the previous
+                % second input:
+                u = evalin('base', "Reserved_u_next;");
+                controller.MPC = CLC_limit_initial_u(controller.MPC,u,controller.MPC.u_deviation);
+            end
+                 
+            %%%%%%% Evaluate optimal input:
+            controller.MPC.initial_state = [q;dq];
+            controller.MPC = CLC_solve(controller.MPC);
+            u = controller.MPC.u;
+            u_next = controller.MPC.u_opt(2,:);
+            assignin("base","Reserved_u_next",u_next);
+            %%%%%%% Save the optimal solution:
+            assignin("base","Reserved_q_opt",controller.MPC.q_opt);
+            assignin("base","Reserved_u_opt",controller.MPC.u_opt);
+            assignin("base","Reserved_q_coll_opt",controller.MPC.q_coll_opt);
+            %%%%%%% Store first input to base work space:
+            t_str = num2str(t);
+            u_str = num2str(u(1));
+            for ii = 2:length(u)
+                u_str = [u_str,',', num2str(u(ii))];
+            end
+            if t == 0
+                % usim_mpc:
+                text = ['usim_mpc = [', t_str, ',' , u_str,'];'];
+                evalin('base',text)
+            else
+                % usim_mpc:
+                text = ['usim_mpc = cat(1,usim_mpc,[', t_str, ',' , u_str,']);'];
+                evalin('base',text)
+            end       
+            if isfield(controller.MPC,'printMPCsteps') && (controller.MPC.printMPCsteps == 1)
+                PlotNLP(controller.MPC)
+                text = ['length(usim_mpc(:,1))'];
+                block_num = evalin('base',text);
+                title(['OL trajectory ', num2str(block_num)])
+            end
+
+        else
+            u = evalin('base', "usim_mpc(end,2:end)';");
+        end
+        
+
+        
+        
 else
         error('ERROR: Choose valid controller type')
 end
