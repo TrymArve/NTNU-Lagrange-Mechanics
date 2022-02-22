@@ -90,6 +90,7 @@ obj.pend_3.type = {'line','ball'};
 obj.pend_3.a = @(q) obj.pend_2.b(q);
 obj.pend_3.b = @(q) obj.pend_3.a(q) + L3*arm(q(3)+pi/2);
 obj.pend_3.color = GetColorCode('p',0.8);
+%obj.pend_3.color = @(q,t) GetColorCode('p',q(3));  %try playing with dynamic colors!
 obj.pend_3.c = obj.pend_3.b;
 obj.pend_3.r = .05;
 

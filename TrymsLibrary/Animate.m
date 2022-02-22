@@ -5,7 +5,7 @@ if (nargin == 3)
     config.dummy = [];
 elseif (nargin <= 1)
     if tsim == "example"
-        Fig = Example();
+        %Fig = Example();  %out dated
     else
         Fig = Help();        
     end
@@ -158,6 +158,9 @@ start = 0;
             
             if isfield(getfield(obj,f),'color')
                 col = getfield(obj,f,'color');
+                if isa(col,"function_handle")
+                    col = col(q,t_disp*SimSpeed);
+                end
             else
                 col = 'k';
             end
