@@ -6,11 +6,19 @@ Includes:
 
 - A general dynamics integrator:
 
-    -- "controller" - simply configure the controller struct to design your controller. (f.ex: controller.type = "PD"; controller.PD.Kp = 10; controller.PD.Kd = 1;)
+    -- "controller" - simply configure the controller struct to design your controller. F.ex:
 
-    -- "parameters" - define some parameters such as length of arms, gravitational field, or any other necessary parameters of your system. (parameters = [g; L1; L2];)
+        controller.type  = "PD"; 
+        controller.PD.Kp = 10; 
+        controller.PD.Kd = 1;
 
-    -- "mass"       - define the sizes of the masses in your system. (mass = [m1; m2];)
+    -- "parameters" - define some parameters such as length of arms, gravitational field, or any other necessary parameters of your system. F.ex: 
+    
+        parameters = [g; L1; L2];
+
+    -- "mass"       - define the sizes of the masses in your system. 
+    
+        mass = [m1; m2];
 
 - "Simulate_EL;" - Script that automatically simulates your system, and plots the result. It then saves the data in "tsim", "xsim", "usim", "ddqsim", "ref".
 
