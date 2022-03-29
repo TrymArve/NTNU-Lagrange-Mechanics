@@ -20,6 +20,7 @@ if (ischar(color)) || (isstring(color))
         ind = find(word == color,1);
     end
 else
+    letter = ['b','o','y','p','g','c','r','m','e','i','k']; %Do not include white if cycling through colors
     ind = mod(color-1,length(letter))+1;
 end
 
