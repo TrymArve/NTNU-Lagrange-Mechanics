@@ -1,4 +1,4 @@
-# LagrangeMechanics
+# Lagrange Mechanics (NTNU)
 MATLAB support for effectively modelling your robotic system, testing your controllers, animating the simulations and saving it as videos.
 
 Includes:
