@@ -7,6 +7,8 @@ MATLAB functions for quickly deriving the Euler-Lagrange equations for your robo
 Includes:
 - "MakeLagrange(...)" - function that takes the positions of every mass described in terms of the generalized coordinates, then returns the kinetic and potential energies associated with every mass, and the system in total. Though, most importantly, it returns the Euler-Lagrange equations of motion. (see: "Inertia Wheel Pendulum" for an example of how to include inertia. Automatic inertia functionality will be added soon)
 
+- Working Examples of how to use the various functions
+
 - A general dynamics integrator:
 
     -- "controller" - simply configure the controller struct to design your controller. F.ex:
