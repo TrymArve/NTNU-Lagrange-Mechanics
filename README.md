@@ -1,6 +1,9 @@
 # Lagrange Mechanics (NTNU)
 MATLAB functions for quickly deriving the Euler-Lagrange equations for your robotic system, simulating the system while testing your controllers and animating the simulations. One can also save the animations as videos.
 
+|❗  OBS: The files in this repository rely on my General MATLAB Library: [General Library](https://github.com/TrymArve/General-Matlab-Library) |
+|---|
+
 Includes:
 - "MakeLagrange(...)" - function that takes the positions of every mass described in terms of the generalized coordinates, then returns the kinetic and potential energies associated with every mass, and the system in total. Though, most importantly, it returns the Euler-Lagrange equations of motion. (see: "Inertia Wheel Pendulum" for an example of how to include inertia. Automatic inertia functionality will be added soon)
 
