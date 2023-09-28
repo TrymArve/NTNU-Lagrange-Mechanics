@@ -39,8 +39,8 @@ function[dstate] = SystemDynamics_Integrator_2(t, state, mass, parameters, contr
 %                                    - Example 2:
 %                                           controller.type = "EXT"
 %                                           controller.EXT.source = "timeseries"
-%                                           controller.EXT.function = [ (1 x nt)array of timestamps;
-%                                                                      (nu x nt)array of corresponding inputvalues]
+%                                           controller.EXT.timeseries = [ (1 x nt)array of timestamps;
+%                                                                        (nu x nt)array of corresponding inputvalues]
 
 %                     - ref   : a function of time describing the reference point as a function handle: ref(t) 
 %                     - dref  : the derivative of ref  as a function handle
@@ -110,7 +110,18 @@ elseif controller.type ==  "EXT"
         if controller.EXT.source == "function"
             u = controller.EXT.function(t,q,dq);
         elseif controller.EXT.source == "timeseries"
-            u = interp1(controller.EXT.timeseries(1,:),controller.EXT.timeseries(2:end,:),t);
+            if ~isfield(controller.EXT,'interpolation_type') || controller.EXT.interpolation_type == "linear"
+                u = interp1(controller.EXT.timeseries(1,:),controller.EXT.timeseries(2:end,:)',t)';
+            elseif controller.EXT.interpolation_type == "constant"
+%                 disp('=========================================')
+%                 timeseries = controller.EXT.timeseries(1,[1:20])
+%                 t
+%                 adjusted_time = timeseries-t
+%                 ceiled_time = ceil(adjusted_time)
+%                 ind_dum = find(ceiled_time == 0)
+                index_dummy = find(ceil(controller.EXT.timeseries(1,:)-t) == 0);
+                u = controller.EXT.timeseries(2:end,index_dummy(end));
+            end
         else
             error('ERROR: select valid source for External controller: "function" or "timeseries".')
         end

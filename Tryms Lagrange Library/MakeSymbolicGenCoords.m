@@ -31,6 +31,7 @@ D = {'','d','dd'};
 % Parameters
 L = length(parameters);
 
+
     for i = 1:L
         name = {[parameters{i}]};
         evalin('base',[s name{:}]);

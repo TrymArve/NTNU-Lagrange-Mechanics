@@ -57,7 +57,7 @@ mass = [m1 m2 m3]';
 tf = 10;
 
 initial_coordinates = [0.6; 0.3; -0.8] + pi;  %[th; phi; xi]
-initial_velocities  = [0 0 0]';  %[dth; dphi; dxi]
+initial_velocities  = 1+[0 0 0]';  %[dth; dphi; dxi]
 init_state = [initial_coordinates; initial_velocities];
 
 %% Simulate

@@ -34,7 +34,7 @@ for i = 1:S.nq
     Leg = reshape(Leg,1,[]);
         Title_temp = title(Leg);
         set(Title_temp,'Interpreter','latex');
-    if nargin > 3
+    if nargin > 3 && (string(controller.type) ~= "off")
         plot(tsim',Ref(:,i)','Color',GetColorCode('pink'),'Linestyle','--')
         
         Leg2 = char(['$$' ,Names{i}, '_{ref}$$']);

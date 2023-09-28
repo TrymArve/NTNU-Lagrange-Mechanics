@@ -57,15 +57,16 @@ end
 if ~isfield(config,'framecenter')
     config.framecenter = [0 0];
 end  
-if ~isfield(config,'framewidth')
+if ~isfield(config,'framewidth') && ~isfield(config,'axis')
     config.framewidth = config.frameheight*(config.figurewidth/config.figureheight);
 end
-centerx = config.framecenter(1);
-centery = config.framecenter(2);
-width   = config.framewidth;
-height  = config.frameheight;
+
 
 if ~isfield(config,'axis')
+        centerx = config.framecenter(1);
+        centery = config.framecenter(2);
+        width   = config.framewidth;
+        height  = config.frameheight;
         config.axis = [-width/2 width/2 -height/2 height/2] + [centerx centerx centery centery];
 end
 

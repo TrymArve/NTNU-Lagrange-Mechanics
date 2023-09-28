@@ -1,7 +1,14 @@
 
-close all; clc;
 
 values.nq = length(S.q);
+try S.nq; catch S.nq = values.nq; end
+try 
+    S.GenCoords;
+catch 
+    for i = 1:values.nq
+        S.GenCoords{i} = ['q_',num2str(i)];
+    end
+end
 
 try
     mass;
