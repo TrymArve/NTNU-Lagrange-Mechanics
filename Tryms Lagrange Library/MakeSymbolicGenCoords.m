@@ -1,8 +1,8 @@
 function[out] = MakeSymbolicGenCoords(coordinates,parameters)
 
 % This function creates sets of symbolic variables for the generalized
-% coordinated and their derivatives (first and second), including one of
-% thats a function of time.
+% coordinates and their derivatives (first and second), including one
+% that's a function of time.
 % coordinates   - cell array of character strings(which are the names of the gencoords)
 % parameters    - cell array of character strings(which have the parameters names)
 % out           - Struct containing all the new symbolic variables
